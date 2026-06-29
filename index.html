@@ -445,7 +445,7 @@
             <div class="swiper-slide">
                 <div class="page-container" :style="i === 1 ? 'padding-top: 0;' : ''">
                     <div class="zoom-wrapper" :style="i === 1 ? 'padding-top: 0; margin-top: 0; margin-bottom: 15px;' : ''">
-                        <button class="inline-maximize-btn" x-show="i !== 1" @click="enableImageFullscreen(i + '.jpg')" x-cloak>🔍 画像最大化</button>
+                        <button class="inline-maximize-btn" x-show="i !== 1" @click="enableImageFullscreen(i + '.jpg')", x-cloak>🔍 画像最大化</button>
                         <div class="swiper-zoom-container">
                             <img :src="i + '.jpg'" class="page-image" :alt="'Page ' + i" @load="i === 2 && adjustImagesHeight()">
                         </div>
@@ -864,7 +864,20 @@
             initializeMainFeatures() {
                 this.updateCartHeight();
                 this.triggerPriceSettingGuidance();
-                this.showFullscreenConfirm = true;
+                
+                // すでに全画面表示（またはPWAスタンドアロン等）であるかチェック
+                const isAlreadyFullscreen = document.fullscreenElement || 
+                                            window.matchMedia('(display-mode: standalone)').matches || 
+                                            window.navigator.standalone;
+
+                if (isAlreadyFullscreen) {
+                    // すでに全画面ならダイアログは表示せずそのまま次の点滅処理へ
+                    this.isFullscreen = true;
+                    this.triggerNextBlink();
+                } else {
+                    // 全画面でなければ確認ダイアログを表示
+                    this.showFullscreenConfirm = true;
+                }
             },
 
             init() { 
